@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="scripts/semantic-ui-css/semantic.min.css">
+    <title>Verify Passkeys Demo</title>
+
+    <style>
+        .ui.celled.striped.table {
+            font-size: xx-small;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ui container center aligned">
+
+    <div class="ui five item menu">
+        <a class="item" href="/">
+            About
+        </a>
+        <a class="item" href="/register">
+            Register
+        </a>
+        <a class="item" href="/sign-in">
+            Sign-In
+        </a>
+        <a class="item" href="/factors">
+            View Factors
+        </a>
+        <a class="item" href="/challenges">
+            View Challenges
+        </a>
+    </div>
+
+    <div class="ui divider"></div>
+    <!-- form place -->
+    <div id="form-place"></div>
+    <!-- Application Root -->
+    <div id="app"></div>
+
+</div>
+
+<div id="detail-form" class="ui modal"></div>
+
+<!-- Error Template -->
+<script id="error-template" type="text/x-handlebars-template">
+    <div class="ui {{color}} inverted segment" style="height:250px;">
+        <br>
+        <h2 class="ui center aligned icon header">
+            <i class="exclamation triangle icon"></i>
+            <div class="content">
+                {{title}}
+                <div class="sub header">{{message}}</div>
+            </div>
+        </h2>
+    </div>
+</script>
+
+
+<!-- Success Template -->
+<script id="success-template" type="text/x-handlebars-template">
+    <div class="ui {{color}} inverted segment" style="height:250px;">
+        <br>
+        <h2 class="ui center aligned icon header">
+            <i class="check circle icon"></i>
+            <div class="content">
+                {{title}}
+                <div class="sub header">{{message}}</div>
+            </div>
+        </h2>
+    </div>
+</script>
+
+<script id="factor-register-template" type="text/x-handlebars-template">
+    <h1 class="ui header">Factor</h1>
+    <hr>
+    <div class="ui loading basic segment left aligned">
+        <div class="form">
+            <div class="ui sub header">Credentials</div>
+            <div class="ui form">
+                <textarea rows="15">{{credentials}}</textarea>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="sign-in-template" type="text/x-handlebars-template">
+    <h1 class="ui header">Challenge</h1>
+    <hr>
+    <div class="ui loading basic segment left aligned">
+        <div class="form">
+            <div class="ui sub header">Credentials</div>
+            <div class="ui form">
+                <textarea rows="15">{{credentials}}</textarea>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="about-template" type="text/x-handlebars-template">
+    <div class="ui loading basic segment left aligned">
+        <div class="form">
+            <div class="ui sub header">Verify Passkeys Customer Emulator</div>
+            <div class="content">
+                The verify passkeys customer client side where you are able to register new or sing-in existing user
+            </div>
+            <div class="ui divider"></div>
+            <div class="ui form">
+                <div class="field">
+                    <label>Account SID</label>
+                    <input type="text" id="account-sid" name="account-sid" placeholder="Twilio account SID (e.g. AC1efe...)">
+                </div>
+                <div class="field">
+                    <label>Account Auth token</label>
+                    <input type="password" id="auth-token" name="auth-token" placeholder="Twilio account auth token (e.g. a1e0fe...)">
+                </div>
+                <div class="field">
+                    <label>Service SID</label>
+                    <input type="text" id="service-sid" name="service-sid" placeholder="Verify product Service SID (e.g. VA52df...)">
+                </div>
+                <button id="config-submit" class="ui button" type="submit">Submit</button>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="register-form-template" type="text/x-handlebars-template">
+    <div class="ui left aligned form segment">
+        <h4 class="ui dividing header">Registration information</h4>
+        <div class="two fields">
+            <div class="field">
+                <label>Name</label>
+                <div class="ui left icon input">
+                    <input id="user-name" type="text" placeholder="identity">
+                    <i class="mail icon"></i>
+                </div>
+            </div>
+            <div class="field">
+                <label>Friendly Name</label>
+                <div class="ui left icon input">
+                    <input id="user-friendly-name" type="text" placeholder="friendly name">
+                    <i class="user icon"></i>
+                </div>
+            </div>
+        </div>
+        <h4 class="ui dividing header">Additional information</h4>
+        <div class="four fields">
+            <div class="field">
+                <label>User verification</label>
+                <select id="user-verification" class="ui search dropdown">
+                    <option value="preferred">preferred</option>
+                    <option value="required">required</option>
+                    <option value="discouraged">discouraged</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Authenticator attachment </label>
+                <select id="authenticator-attachment" class="ui search dropdown">
+                    <option value="platform">platform</option>
+                    <option value="cross-platform">cross-platform</option>
+                </select>
+            </div>
+        </div>
+
+    </div>
+    <div id="registerButton" class="ui button" tabIndex="0">
+        Register
+    </div>
+
+</script>
+
+<script id="sign-in-form-template" type="text/x-handlebars-template">
+    <div class="ui left aligned form segment">
+        <h4 class="ui dividing header">Sign In information</h4>
+        <div class="two fields">
+            <div class="field">
+                <label>Name</label>
+                <div class="ui left icon input">
+                    <input id="user-name" type="text" placeholder="identity">
+                    <i class="mail icon"></i>
+                </div>
+            </div>
+            <div class="field">
+                <label>Friendly Name</label>
+                <div class="ui left icon input">
+                    <input id="user-friendly-name" type="text" placeholder="friendly name">
+                    <i class="user icon"></i>
+                </div>
+            </div>
+        </div>
+        <h4 class="ui dividing header">Additional information</h4>
+        <div class="four fields">
+            <div class="field">
+                <label>User verification</label>
+                <select id="user-verification" class="ui search dropdown">
+                    <option value="preferred">preferred</option>
+                    <option value="required">required</option>
+                    <option value="discouraged">discouraged</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div id="signInButton" class="ui button" tabindex="0">
+        Sign In
+    </div>
+
+</script>
+
+<script id="factors-template" type="text/x-handlebars-template">
+    <div class="ui loading basic segment left aligned">
+        <table class="ui celled striped table">
+            <thead>
+            <tr>
+                <th>SID</th>
+                <th>Account SID</th>
+                <th>Service SID</th>
+                <th>Entity SID</th>
+                <th>Entity Identity</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each factors}}
+                {{> factorsTableRow }}
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <div class="ui center aligned pagination menu">
+        {{#if pagination.prev}}{{#> pageNav name="<<" token=pagination.prev}}{{/pageNav}}{{/if}}
+        {{#if pagination.self}}{{#> pageNav name=".." token=pagination.self}}{{/pageNav}}{{/if}}
+        {{#if pagination.next}}{{#> pageNav name=">>" token=pagination.next}}{{/pageNav}}{{/if}}
+    </div>
+</script>
+
+<script id="factor-row-template" type="text/x-handlebars-template">
+    <tr>
+        <td><a href="{{sid}}" data-value="factors">{{sid}}</a></td>
+        <td>{{account_sid}}</td>
+        <td>{{service_sid}}</td>
+        <td>{{entity_sid}}</td>
+        <td>{{entity_identity}}</td>
+        <td>{{status}}</td>
+    </tr>
+</script>
+
+<script id="challenges-template" type="text/x-handlebars-template">
+    <div class="ui loading basic segment left aligned">
+        <table class="ui celled striped table">
+            <thead>
+            <tr>
+                <th>SID</th>
+                <th>Account SID</th>
+                <th>Service SID</th>
+                <th>Entity SID</th>
+                <th>Entity Identity</th>
+                <th>Factor SID</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each challenges}}
+                {{> challengesTableRow }}
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <div class="ui center aligned pagination menu">
+        {{#if pagination.prev}}{{#> pageNav name="<<" token=pagination.prev}}{{/pageNav}}{{/if}}
+        {{#if pagination.self}}{{#> pageNav name=".." token=pagination.self}}{{/pageNav}}{{/if}}
+        {{#if pagination.next}}{{#> pageNav name=">>" token=pagination.next}}{{/pageNav}}{{/if}}
+    </div>
+</script>
+
+<script id="challenge-row-template" type="text/x-handlebars-template">
+    <tr>
+        <td><a href="{{sid}}" data-value="challenges">{{sid}}</a></td>
+        <td>{{account_sid}}</td>
+        <td>{{service_sid}}</td>
+        <td>{{entity_sid}}</td>
+        <td>{{entity_identity}}</td>
+        <td><a href="{{factor_sid}}" data-value="factors">{{factor_sid}}</td>
+        <td>{{status}}</td>
+    </tr>
+</script>
+
+<script id="page-nav-template" type="text/x-handlebars-template">
+    <a class="center aligned item" data-value="{{token}}">
+        {{name}}
+    </a>
+</script>
+
+<script id="detail-form-template" type="text/x-handlebars-template">
+    <div class="header">{{header}}</div>
+    <div class="content">
+        <div class="ui form">
+            <div class="field">
+                <label>Data</label>
+                <textarea class="striped">{{text}}</textarea>
+            </div>
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui cancel button">Close</div>
+    </div>
+</script>
+
+<!-- JS Library Dependencies -->
+<script src="scripts/jquery/dist/jquery.min.js"></script>
+<script src="scripts/semantic-ui-css/semantic.min.js"></script>
+<script src="scripts/axios/dist/axios.min.js"></script>
+<script src="scripts/handlebars/dist/handlebars.min.js"></script>
+<script src="scripts/vanilla-router/dist/vanilla-router.min.js"></script>
+<script type="module" src="scripts/@github/webauthn-json/dist/esm/webauthn-json.browser-ponyfill.js"></script>
+<script type="module" src="./js/client.js"></script>
+</body>
+</html>
