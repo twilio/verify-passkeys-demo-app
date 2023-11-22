@@ -89,18 +89,18 @@ $(document).on('click', '#registerButton', (event) => {
     let html = registerTemplate();
     app.html(html);
 
-    let userMail = $('#user-mail').val()
+    let userName = $('#user-name').val()
     let userFriendlyName = $('#user-friendly-name').val()
     let userVerification = $('#user-verification').val()
     let authenticatorAttachment = $('#authenticator-attachment').val()
 
-    let createFactorBody = {userMail, userFriendlyName, userVerification, authenticatorAttachment}
+    let createFactorBody = {userName, userFriendlyName, userVerification, authenticatorAttachment}
 
     callPasskeys('/factors/create', createFactorBody
     ).then((factorData) => {
         return createKey(factorData.credentialCreationOptions)
     }).then((authenticatorAttestationResponse) => {
-        let verifyBody = {userMail, authenticatorAttestationResponse}
+        let verifyBody = {userName, authenticatorAttestationResponse}
         return callPasskeys('/factors/verify', verifyBody)
     }).then((factorVerifyResponse) => {
         let data = {'credentials': JSON.stringify(factorVerifyResponse, null, 2)}
@@ -119,17 +119,17 @@ $(document).on('click', '#signInButton', (event) => {
     let html = signInTemplate();
     app.html(html);
 
-    let userMail = $('#user-mail').val()
+    let userName = $('#user-name').val()
     let userFriendlyName = $('#user-friendly-name').val()
     let userVerification = $('#user-verification').val()
 
-    let createChallengeBody = {userMail, userFriendlyName, userVerification}
+    let createChallengeBody = {userName, userFriendlyName, userVerification}
 
     callPasskeys('/challenges/create', createChallengeBody
     ).then((challengeData) => {
         return getKey(challengeData.credentialRequestOptions)
     }).then((authenticatorAssertionResponse) => {
-        let verifyBody = {userMail, authenticatorAttestationResponse: authenticatorAssertionResponse}
+        let verifyBody = {userName, authenticatorAttestationResponse: authenticatorAssertionResponse}
         return callPasskeys('/challenges/verify', verifyBody);
     }).then((challengeVerifyResponse) => {
         let data = {'credentials': JSON.stringify(challengeVerifyResponse, null, 2)}
@@ -154,7 +154,7 @@ const callPasskeys = (path, body) => {
     return fetch(path, $.extend(true, postRequest, {body: JSON.stringify(body)}))
         .then((response) => {
             if (response.ok) {
-                console.log('response from Verify Passkeys');
+                console.log('response from Verify Passkeys ' + JSON.stringify(response));
                 return response.json();
             }
             return response.text().then((err) => {
