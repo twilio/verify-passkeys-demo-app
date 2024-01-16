@@ -17,6 +17,7 @@ app.use('/scripts', express.static(`${__dirname}/node_modules/`));
 // parse application/json
 app.use(bodyParser.json())
 
+app.use('/config', config.router)
 app.use('/factors', factorsRouter)
 app.use('/challenges', challengesRouter)
 

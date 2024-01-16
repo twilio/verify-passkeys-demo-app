@@ -6,12 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="scripts/semantic-ui-css/semantic.min.css">
     <title>Verify Passkeys Demo</title>
+
+    <style>
+        .ui.celled.striped.table {
+            font-size: xx-small;
+        }
+    </style>
 </head>
 <body>
 
 <div class="ui container center aligned">
 
-    <div class="ui three item menu">
+    <div class="ui five item menu">
         <a class="item" href="/">
             About
         </a>
@@ -21,6 +27,12 @@
         <a class="item" href="/sign-in">
             Sign-In
         </a>
+        <a class="item" href="/factors">
+            Factors
+        </a>
+        <a class="item" href="/challenges">
+            Challenges
+        </a>
     </div>
 
     <div class="ui divider"></div>
@@ -28,7 +40,10 @@
     <div id="form-place"></div>
     <!-- Application Root -->
     <div id="app"></div>
+
 </div>
+
+<div id="detail-form" class="ui modal"></div>
 
 <!-- Error Template -->
 <script id="error-template" type="text/x-handlebars-template">
@@ -76,6 +91,18 @@
             <div class="ui sub header">Verify Passkeys Customer Emulator</div>
             <div class="content">
                 The verify passkeys customer client side where you are able to register new or sing-in existing user
+            </div>
+            <div class="ui divider"></div>
+            <div class="ui form">
+                <div class="field">
+                    <label>Account SID</label>
+                    <input type="text" id="account-sid" name="account-sid" placeholder="AC[0-9a-f]{32}">
+                </div>
+                <div class="field">
+                    <label>Service SID</label>
+                    <input type="text" id="service-sid" name="service-sid" placeholder="VA[0-9a-f]{32}">
+                </div>
+                <button id="config-submit" class="ui button" type="submit">Submit</button>
             </div>
         </div>
     </div>
@@ -161,6 +188,105 @@
         Sign In
     </div>
 
+</script>
+
+<script id="factors-template" type="text/x-handlebars-template">
+    <div class="ui loading basic segment left aligned">
+        <table class="ui celled striped table">
+            <thead>
+            <tr>
+                <th>SID</th>
+                <th>Account SID</th>
+                <th>Service SID</th>
+                <th>Entity SID</th>
+                <th>Entity Identity</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each factors}}
+                {{> factorsTableRow }}
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <div class="ui center aligned pagination menu">
+        {{#if pagination.prev}}{{#> pageNav name="<<" token=pagination.prev}}{{/pageNav}}{{/if}}
+        {{#if pagination.self}}{{#> pageNav name=".." token=pagination.self}}{{/pageNav}}{{/if}}
+        {{#if pagination.next}}{{#> pageNav name=">>" token=pagination.next}}{{/pageNav}}{{/if}}
+    </div>
+</script>
+
+<script id="factor-row-template" type="text/x-handlebars-template">
+    <tr>
+        <td><a href="{{sid}}" data-value="factors">{{sid}}</a></td>
+        <td>{{account_sid}}</td>
+        <td>{{service_sid}}</td>
+        <td>{{entity_sid}}</td>
+        <td>{{entity_identity}}</td>
+        <td>{{status}}</td>
+    </tr>
+</script>
+
+<script id="challenges-template" type="text/x-handlebars-template">
+    <div class="ui loading basic segment left aligned">
+        <table class="ui celled striped table">
+            <thead>
+            <tr>
+                <th>SID</th>
+                <th>Account SID</th>
+                <th>Service SID</th>
+                <th>Entity SID</th>
+                <th>Entity Identity</th>
+                <th>Factor SID</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each challenges}}
+                {{> challengesTableRow }}
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <div class="ui center aligned pagination menu">
+        {{#if pagination.prev}}{{#> pageNav name="<<" token=pagination.prev}}{{/pageNav}}{{/if}}
+        {{#if pagination.self}}{{#> pageNav name=".." token=pagination.self}}{{/pageNav}}{{/if}}
+        {{#if pagination.next}}{{#> pageNav name=">>" token=pagination.next}}{{/pageNav}}{{/if}}
+    </div>
+</script>
+
+<script id="challenge-row-template" type="text/x-handlebars-template">
+    <tr>
+        <td><a href="{{sid}}" data-value="challenges">{{sid}}</a></td>
+        <td>{{account_sid}}</td>
+        <td>{{service_sid}}</td>
+        <td>{{entity_sid}}</td>
+        <td>{{entity_identity}}</td>
+        <td><a href="{{factor_sid}}" data-value="factors">{{factor_sid}}</td>
+        <td>{{status}}</td>
+    </tr>
+</script>
+
+<script id="page-nav-template" type="text/x-handlebars-template">
+    <a class="center aligned item" data-value="{{token}}">
+        {{name}}
+    </a>
+</script>
+
+<script id="detail-form-template" type="text/x-handlebars-template">
+    <div class="header">{{header}}</div>
+    <div class="content">
+        <div class="ui form">
+            <div class="field">
+                <label>Data</label>
+                <textarea class="striped">{{text}}</textarea>
+            </div>
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui cancel button">Close</div>
+    </div>
 </script>
 
 <!-- JS Library Dependencies -->
