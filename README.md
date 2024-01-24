@@ -24,7 +24,7 @@ to help ngrok generate urls differently
 
 ## Configure
 Twilio account tokens can be added in the `.env` file before starting the application
-or in the "About" tab once the app has been started.
+or in the "About" tab in the browser once the app has been started.
 
 ## Run
 
