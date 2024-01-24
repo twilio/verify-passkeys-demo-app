@@ -111,6 +111,7 @@ const initConfig = () => {
     getPasskeys('/config')
         .then((configData) => {
             $('#account-sid').val(configData.accountSid);
+            $('#auth-token').val(configData.authToken);
             $('#service-sid').val(configData.serviceSid);
         })
         .catch((error) => {
@@ -125,8 +126,9 @@ $(document).on('click', '#config-submit', (event) => {
     event.preventDefault();
 
     let accountSid = $('#account-sid').val();
+    let authToken = $('#auth-token').val();
     let serviceSid = $('#service-sid').val();
-    const configData = {accountSid, serviceSid};
+    const configData = {accountSid, authToken, serviceSid};
 
     postPasskeys('/config', configData).catch((error) => {
         console.log(error);
