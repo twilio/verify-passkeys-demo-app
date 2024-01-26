@@ -8,7 +8,7 @@ import {
 const app = $('#app');
 const formPlace = $('#form-place');
 const detailFormDiv = $('#detail-form');
-let registerTemplate, signInTemplate, errorTemplate
+let registerTemplate, signInTemplate, errorTemplate, successTemplate
 let aboutTemplate, registerFormTemplate, signInFormTemplate
 let factorsTemplate, challengesTemplate, detailFormTemplate
 
@@ -17,6 +17,12 @@ let pageToken = null;
 const showError = (error) => {
     const message = error.message;
     const html = errorTemplate({color: 'orange', 'title': 'Error', 'message': message});
+    app.html(html);
+};
+
+const showSuccess = () => {
+    const message = "Configuration successfully updated";
+    const html = successTemplate({color: 'green', 'title': 'Success', 'message': message});
     app.html(html);
 };
 
@@ -36,6 +42,7 @@ const router = new Router({
 window.addEventListener('load', () => {
     // Compile Handlebar Templates
     errorTemplate = Handlebars.compile($('#error-template').html());
+    successTemplate = Handlebars.compile($('#success-template').html());
     registerTemplate = Handlebars.compile($('#factor-register-template').html());
     signInTemplate = Handlebars.compile($('#sign-in-template').html());
     aboutTemplate = Handlebars.compile($('#about-template').html());
@@ -110,6 +117,9 @@ window.addEventListener('load', () => {
 const initConfig = () => {
     getPasskeys('/config')
         .then((configData) => {
+            console.log('[Client] Get app config response');
+            console.log(configData);
+
             $('#account-sid').val(configData.accountSid);
             $('#auth-token').val(configData.authToken);
             $('#service-sid').val(configData.serviceSid);
@@ -124,15 +134,20 @@ const initConfig = () => {
 
 $(document).on('click', '#config-submit', (event) => {
     event.preventDefault();
-
     let accountSid = $('#account-sid').val();
     let authToken = $('#auth-token').val();
     let serviceSid = $('#service-sid').val();
     const configData = {accountSid, authToken, serviceSid};
 
-    postPasskeys('/config', configData).catch((error) => {
-        console.log(error);
-        showError(error);
+    postPasskeys('/config', configData)
+        .then(() => {
+            showSuccess();
+            console.log('[Client] Post app config response');
+            console.log(configData);
+        })
+        .catch((error) => {
+            console.log(error);
+            showError(error);
     }).finally(() => {
         $('.loading').removeClass('loading');
     });
@@ -215,7 +230,6 @@ $(document).on('click', 'table tbody tr td a', (event) => {
     const sid = target.attr('href');
     const endpoint = target.attr('data-value');
     const header = endpoint === "factors" ? "Factor" : "Challenge";
-    console.log("item sid " + sid + " endpoint " + endpoint);
     itemDetail(header, endpoint, sid);
 });
 
@@ -226,6 +240,9 @@ const listItems = (endpoint, token, template) => {
         params.page_token = token;
     }
     getPasskeys('/' + endpoint + '/list', params).then((items) => {
+        console.log('[Client] List ' + endpoint + ' response');
+        console.log(items);
+
         const html = template(items);
         formPlace.html(html);
     }).catch((error) => {
@@ -243,6 +260,9 @@ const itemDetail = (header, endpoint, sid) => {
             header: header,
             text: JSON.stringify(item, null, 2)
         };
+        console.log('[Client] Get ' + endpoint + ' response');
+        console.log(item);
+
         const html = detailFormTemplate(data);
         detailFormDiv.html(html);
         $('#detail-form').modal('show')
@@ -265,11 +285,10 @@ const postPasskeys = (path, body) => {
     return fetch(path, $.extend(true, postRequest, {body: JSON.stringify(body)}))
         .then((response) => {
             if (response.ok) {
-                console.log('response from Verify Passkeys ' + JSON.stringify(response));
                 return response.json();
             }
             return response.text().then((err) => {
-                throw new Error("response from Verify Passkeys: " + err)
+                throw new Error("[Client] response from Verify Passkeys: " + err);
             });
         })
 }
@@ -288,11 +307,10 @@ const getPasskeys = (path, params) => {
     return fetch(path, getRequest)
         .then((response) => {
             if (response.ok) {
-                console.log('response from Verify Passkeys ' + JSON.stringify(response));
                 return response.json();
             }
             return response.text().then((err) => {
-                throw new Error("response from Verify Passkeys: " + err)
+                throw new Error("[Client] response from Verify Passkeys: " + err);
             });
         })
 }
@@ -301,11 +319,11 @@ const createKey = (publicKey) => {
     if (!window.PublicKeyCredential) { /* Client not capable. Handle error. */
         throw new Error('PublicKeyCredential is not supported.');
     }
-    console.log("createKey request")
+    console.log("[Client] createKey request");
     console.log(JSON.stringify(publicKey, null, 2))
     const credentialCreationOptions = parseCreationOptionsFromJSON(publicKey);
     return create(credentialCreationOptions).then(result => {
-        console.log("createKey response");
+        console.log("[Client] createKey response");
         console.log(JSON.stringify(result, null, 2));
         return result;
     })
@@ -315,11 +333,11 @@ const getKey = (publicKey) => {
     if (!window.PublicKeyCredential) { /* Client not capable. Handle error. */
         throw new Error('PublicKeyCredential is not supported.');
     }
-    console.log("getKey request")
+    console.log("[Client] getKey request");
     console.log(JSON.stringify(publicKey, null, 2))
     const credentialRequestOptions = parseRequestOptionsFromJSON(publicKey);
     return get(credentialRequestOptions).then(result => {
-        console.log("getKey response")
+        console.log("[Client] getKey response");
         console.log(JSON.stringify(result, null, 2));
         return result;
     });

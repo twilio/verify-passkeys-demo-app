@@ -45,3 +45,8 @@ have ngrok authtoken installed, then the generated url will look different
 (it will be under different subdomain, i.e. `https://7f64-107-20-166-29.ngrok.io`)
 and it might not be accessible by others.
 
+## Logging
+In the demo application there are multiple logs written to the console.
+For requests hitting the Twilio API, the logs will be prefixed with `[Twilio API]`.
+For requests hitting the demo backend server, the logs will be prefixed with `[Server]`.
+For requests hitting the demo frontend server, the logs will be prefixed with `[Client]`.
