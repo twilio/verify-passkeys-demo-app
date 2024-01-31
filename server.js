@@ -1,3 +1,5 @@
+// Copyright 2024 Twilio Inc
+
 require('dotenv').config(); // read .env files
 const express = require('express');
 const ngrok = require('ngrok');
