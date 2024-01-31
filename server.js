@@ -8,7 +8,7 @@ const factorsRouter = require('./lib/factors')
 const challengesRouter = require('./lib/challenges')
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = 3000;
 
 // Set public folder as root
 app.use(express.static('public'));
@@ -26,7 +26,9 @@ app.use((req, res) =>
     res.sendFile(`${__dirname}/public/index.html`));
 
 // Listen for HTTP requests on port 3000
-const server = app.listen(port, () => ngrok.connect(port)  //Promise.resolve("http://localhost:3000")
+const server = app.listen(port, () =>
+    ngrok.connect(port)
+    // Promise.resolve("http://localhost:3000")
     .then((url) => {
         config.setUrl(url)
         console.log('listening on %d', port);
