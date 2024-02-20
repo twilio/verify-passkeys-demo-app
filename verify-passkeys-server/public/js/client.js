@@ -118,7 +118,11 @@ const initConfig = () => {
     getPasskeys('/config')
         .then((configData) => {
             console.log('[Client] Get app config response');
-            console.log(configData);
+            let maskedAuthToken = configData.authToken.replace(/./g, "*");
+            let accountSid = configData.accountSid;
+            let serviceSid = configData.serviceSid;
+            const maskedConf = { accountSid, maskedAuthToken, serviceSid }
+            console.log(maskedConf);
 
             $('#account-sid').val(configData.accountSid);
             $('#auth-token').val(configData.authToken);
@@ -141,9 +145,11 @@ $(document).on('click', '#config-submit', (event) => {
 
     postPasskeys('/config', configData)
         .then(() => {
+            let maskedAuthToken = authToken.replace(/./g, "*");
+            let maskedConf = {accountSid, maskedAuthToken, serviceSid}
             showSuccess();
             console.log('[Client] Post app config response');
-            console.log(configData);
+            console.log(maskedConf);
         })
         .catch((error) => {
             console.log(error);

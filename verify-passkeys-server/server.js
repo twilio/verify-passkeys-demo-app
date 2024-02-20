@@ -10,27 +10,33 @@ const factorsRouter = require('./lib/factors')
 const challengesRouter = require('./lib/challenges')
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 // Set public folder as root
-app.use(express.static('public'));
+//app.use(express.static('public'));
 // Allow front-end access to node_modules folder
-app.use('/scripts', express.static(`${__dirname}/node_modules/`));
+//app.use('/scripts', express.static(`${__dirname}/node_modules/`));
 // parse application/json
 app.use(bodyParser.json())
+app.all('*', function (_req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
 
 app.use('/config', config.router)
 app.use('/factors', factorsRouter)
 app.use('/challenges', challengesRouter)
 
 // Redirect all traffic to index.html
-app.use((req, res) =>
-    res.sendFile(`${__dirname}/public/index.html`));
+//app.use((req, res) =>
+//    res.sendFile(`${__dirname}/public/index.html`));
 
 // Listen for HTTP requests on port 3000
 const server = app.listen(port, () =>
     ngrok.connect(port)
-    // Promise.resolve("http://localhost:3000")
+    // Promise.resolve("http://localhost:3001")
     .then((url) => {
         config.setUrl(url)
         console.log('listening on %d', port);

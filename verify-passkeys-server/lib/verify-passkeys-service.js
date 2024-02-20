@@ -11,6 +11,8 @@ const api = axios.create({
 // Generic POST request function
 const post = async (url, body) => {
     try {
+        console.log("acc sid " + getAccountSid());
+        console.log("auth " + getAccountAuthToken());
         const response = await api.post(url, body, {
             auth: {
                 username: getAccountSid(),
@@ -22,6 +24,7 @@ const post = async (url, body) => {
             return data;
         }
     } catch (err) {
+        console.log(err);
         throw new Error(err.code + " " + err.message);
     }
 };

@@ -23,7 +23,7 @@ router.post('/create', async (req, res, next) => {
             },
             config: {
                 relying_party: {
-                    id: config.getHostName(),
+                    id: 'localhost',
                     name: "ACME Corporation",
                     origins: [
                         config.getUrl()
@@ -54,6 +54,7 @@ router.post('/create', async (req, res, next) => {
         res.send(factorData);
 
     } catch (err) {
+        console.log(err);
         res.status(500).send(err.message);
     }
 })
